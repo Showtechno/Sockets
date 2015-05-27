@@ -1,12 +1,12 @@
 package simple;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 
-class ServerThread extends Thread{
+class ServerThread implements Runnable{
+	
 	Socket sverb; 
 	int    nverb;
 	TCPServer server;
@@ -19,37 +19,17 @@ class ServerThread extends Thread{
 			/** Verwaltet den Eingabestream der Socketverbindung */
 			DataInputStream in=new DataInputStream(sverb.getInputStream());
 			
-			/** Verwaltet den Ausgabestream der Socketverbindung */
-			PrintStream	out=new PrintStream(sverb.getOutputStream());
-			
-			/** Eingehende TCP Verbindungen werden an einen eigenen (virtuellen)             Socket
-			weitergereicht, über den die eigentliche Kommunikation stattfindet        (Damit mehrere
-			Anfragen gleichzeitig bearbeitet werden können, müsste         dieser Teil durch Threads
-			parallelisiert werden.) */
 
 			String clientSentence = in.readLine();
-			/*  Wandele die Nachricht in Grossbuchstaben */
-			String capitalizedSentence = clientSentence.toUpperCase()+'\n';
-			/*  Sende die Antwort an den Client */
-			out.print(capitalizedSentence);
-			/*  Der Server schliesst die Socketverbindung nicht. Weitere
-			 *  Anfragen über diesen Socket werden jedoch nicht beachtet. */
+			server.senden(clientSentence);
 			
-			if(capitalizedSentence =="END"){
-				sverb.close();
-			}
-			}
-		}
+			}// Ende while
+		}// Ende try
+		
 		catch (IOException e){
-			System.out.println("connetionLost"); 
+			System.out.println("connetionLost");
 			server.disconnect(nverb);
-			try {
-				sverb.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			
-		}
+		}// Ende catch
 	} // Ende run()
-} // Ende SimpleServe
+} // Ende SimpleServer
